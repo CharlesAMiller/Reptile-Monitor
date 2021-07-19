@@ -1,4 +1,29 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:amplify_flutter/amplify.dart';
+import 'package:amplify_api/amplify_api.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:flutter/material.dart';
+
+import 'amplifyconfiguration.dart';
+
+import 'models/TemperatureStatus.dart';
+
+Future<TemperatureStatus> fetchStatus() async {
+  final response = await http.get(
+      Uri.parse(
+          "https://ydrgbyjuk9.execute-api.us-west-2.amazonaws.com/beta/3/status"),
+      headers: {'Content-type': 'application/json'});
+  print("Reached");
+  if (response.statusCode == 200) {
+    print(response.body);
+    return TemperatureStatus.fromJson(jsonDecode(response.body));
+  } else {
+    print(response.statusCode);
+    throw Exception('Failed to load status');
+  }
+}
 
 void main() {
   runApp(MyApp());
@@ -46,20 +71,42 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  late Future<TemperatureStatus> futureStatus;
 
   @override
+  void initState() {
+    super.initState();
+    futureStatus = fetchStatus();
+    _configureAmplify();
+  }
+
+  void onTestApi() async {
+    try {
+      RestOptions options = RestOptions(
+          path: '/enclosure/3',
+          queryParameters: {'TableName': 'EnclosureStatus'});
+      RestOperation restOperation = Amplify.API.get(restOptions: options);
+      RestResponse response = await restOperation.response;
+      print('GET call succeeded');
+      print(String.fromCharCodes(response.data));
+    } on ApiException catch (e) {
+      print('GET call failed: $e');
+    }
+  }
+
+  void _configureAmplify() async {
+    // Add the following line to add API plugin to your app.
+    // Auth plugin needed for IAM authorization mode, which is default for REST API.
+    Amplify.addPlugins([AmplifyAPI(), AmplifyAuthCognito()]);
+
+    try {
+      await Amplify.configure(amplifyconfig);
+    } on AmplifyAlreadyConfiguredException {
+      print(
+          "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
+    }
+  }
+
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -76,38 +123,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+        child:
+            ElevatedButton(child: const Text("Rest API"), onPressed: onTestApi),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
