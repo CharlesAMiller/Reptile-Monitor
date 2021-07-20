@@ -128,10 +128,17 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Card(
               margin: EdgeInsets.all(20),
-              child: HeatGauge(),
+              child: Column(children: [
+                HeatGauge(),
+                TextButton(child: const Text("Test"), onPressed: () {})
+              ]),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100))),
-          Card(margin: EdgeInsets.all(20), child: HeatGauge())
+          Card(
+              margin: EdgeInsets.all(20),
+              child: HeatGauge(),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(100)))
         ]),
       ),
     );
