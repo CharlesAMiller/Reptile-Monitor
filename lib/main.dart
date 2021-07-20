@@ -5,25 +5,10 @@ import 'package:amplify_flutter/amplify.dart';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter/material.dart';
+import 'package:reptile_monitor/api/GetTemperatureStatus.dart';
 
 import 'amplifyconfiguration.dart';
-
 import 'models/TemperatureStatus.dart';
-
-Future<TemperatureStatus> fetchStatus() async {
-  final response = await http.get(
-      Uri.parse(
-          "https://ydrgbyjuk9.execute-api.us-west-2.amazonaws.com/beta/3/status"),
-      headers: {'Content-type': 'application/json'});
-  print("Reached");
-  if (response.statusCode == 200) {
-    print(response.body);
-    return TemperatureStatus.fromJson(jsonDecode(response.body));
-  } else {
-    print(response.statusCode);
-    throw Exception('Failed to load status');
-  }
-}
 
 void main() {
   runApp(MyApp());
@@ -71,27 +56,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late Future<TemperatureStatus> futureStatus;
-
   @override
   void initState() {
     super.initState();
-    futureStatus = fetchStatus();
     _configureAmplify();
-  }
-
-  void onTestApi() async {
-    try {
-      RestOptions options = RestOptions(
-          path: '/enclosure/3',
-          queryParameters: {'TableName': 'EnclosureStatus'});
-      RestOperation restOperation = Amplify.API.get(restOptions: options);
-      RestResponse response = await restOperation.response;
-      print('GET call succeeded');
-      print(String.fromCharCodes(response.data));
-    } on ApiException catch (e) {
-      print('GET call failed: $e');
-    }
   }
 
   void _configureAmplify() async {
@@ -123,8 +91,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child:
-            ElevatedButton(child: const Text("Rest API"), onPressed: onTestApi),
+        child: ElevatedButton(
+            child: const Text("Rest API"),
+            onPressed: () => getTemperatureStatus()),
       ),
     );
   }
