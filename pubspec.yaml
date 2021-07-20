@@ -23,6 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  syncfusion_flutter_gauges: ^19.2.48
   amplify_flutter: ^0.2.0
   amplify_api: ^0.2.0
   amplify_auth_cognito: ^0.2.0
