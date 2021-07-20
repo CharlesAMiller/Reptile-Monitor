@@ -4,10 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:amplify_flutter/amplify.dart';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:flutter/material.dart';
 
 import 'amplifyconfiguration.dart';
 
+import 'components/HeatGauge.dart';
 import 'models/TemperatureStatus.dart';
 
 Future<TemperatureStatus> fetchStatus() async {
@@ -121,11 +121,11 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child:
-            ElevatedButton(child: const Text("Rest API"), onPressed: onTestApi),
-      ),
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: Container(
+        child: HeatGauge(),
+      )),
     );
   }
 }
