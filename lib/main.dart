@@ -120,12 +120,20 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
-          child: Container(
-        child: HeatGauge(),
-      )),
+      body: // Center is a layout widget. It takes a single child and positions it
+          FittedBox(
+        fit: BoxFit.fitWidth,
+        // in the middle of the parent.
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Card(
+              margin: EdgeInsets.all(20),
+              child: HeatGauge(),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(100))),
+          Card(margin: EdgeInsets.all(20), child: HeatGauge())
+        ]),
+      ),
     );
   }
 }
