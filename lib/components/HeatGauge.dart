@@ -31,12 +31,12 @@ class _HeatGaugeState extends State<HeatGauge> {
     return SfRadialGauge(
       axes: <RadialAxis>[
         RadialAxis(
-          minimum: 60,
-          maximum: 110,
+          minimum: 70,
+          maximum: 100,
           labelsPosition: ElementsPosition.outside,
           ranges: <GaugeRange>[
             GaugeRange(
-                startValue: 60,
+                startValue: 70,
                 endValue: 75,
                 label: "Freezing!",
                 labelStyle: GaugeTextStyle(color: Colors.white),
@@ -80,7 +80,7 @@ class _HeatGaugeState extends State<HeatGauge> {
             ),
             GaugeRange(
               startValue: 95,
-              endValue: 110,
+              endValue: 100,
               color: Colors.red,
               startWidth: 40,
               endWidth: 40,

@@ -127,15 +127,21 @@ class _MyHomePageState extends State<MyHomePage> {
         child:
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Card(
-              margin: EdgeInsets.all(20),
+              margin: EdgeInsets.all(10),
               child: Column(children: [
                 HeatGauge(),
-                TextButton(child: const Text("Test"), onPressed: () {})
+                Container(
+                  padding: EdgeInsets.all(20),
+                  child: Text(
+                    "Temperature (F)",
+                    style: TextStyle(fontSize: 24.0, color: Colors.green),
+                  ),
+                )
               ]),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100))),
           Card(
-              margin: EdgeInsets.all(20),
+              margin: EdgeInsets.all(10),
               child: HeatGauge(),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100)))
