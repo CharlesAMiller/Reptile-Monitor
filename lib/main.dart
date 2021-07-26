@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:amplify_flutter/amplify.dart';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:video_player/video_player.dart';
 
 import 'amplifyconfiguration.dart';
 
@@ -72,12 +73,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late Future<TemperatureStatus> futureStatus;
+  late VideoPlayerController _controller;
 
   @override
   void initState() {
     super.initState();
     futureStatus = fetchStatus();
     _configureAmplify();
+    _controller = VideoPlayerController.network(
+        'https://b-117b36f5.kinesisvideo.us-west-2.amazonaws.com/hls/v1/getHLSMasterPlaylist.m3u8?SessionToken=CiDTwyGwfj5oTbvl_gG61Q3yIsznnpoIE3XTzSIlQXy-rhIQ0Lk6AxJpmYJEChooZG_-ohoZdmE5icjXkC6N1DekvRIs-vK-gBHTIB6xTyIgsSpH8U4GOVnCmZ2kSpRa1grV1S9a3k8ZzcqrxrrbR9w~')
+      ..initialize().then((value) => setState(() {
+            _controller.play();
+          }));
   }
 
   void onTestApi() async {
@@ -121,32 +128,48 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: // Center is a layout widget. It takes a single child and positions it
-          FittedBox(
-        fit: BoxFit.fitWidth,
-        // in the middle of the parent.
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Card(
-              margin: EdgeInsets.all(10),
+          Container(
               child: Column(children: [
-                HeatGauge(),
-                Container(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    "Temperature (F)",
-                    style: TextStyle(fontSize: 24.0, color: Colors.green),
-                  ),
-                )
-              ]),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100))),
-          Card(
-              margin: EdgeInsets.all(10),
-              child: HeatGauge(),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100)))
-        ]),
-      ),
+        Center(
+            child: _controller.value.isInitialized
+                ? AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: VideoPlayer(_controller))
+                : Container()),
+        FittedBox(
+          fit: BoxFit.fitWidth,
+          // in the middle of the parent.
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Card(
+                margin: EdgeInsets.all(10),
+                child: Column(children: [
+                  HeatGauge(),
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      "Temperature (F)",
+                      style: TextStyle(fontSize: 24.0, color: Colors.green),
+                    ),
+                  )
+                ]),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100))),
+            Card(
+                margin: EdgeInsets.all(10),
+                child: Column(children: [
+                  HeatGauge(),
+                  Container(
+                      padding: EdgeInsets.all(20),
+                      child: Text("Humidity",
+                          style:
+                              TextStyle(fontSize: 24.0, color: Colors.green)))
+                ]),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100)))
+          ]),
+        )
+      ])),
     );
   }
 }

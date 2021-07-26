@@ -52,6 +52,8 @@ PODS:
   - Flutter (1.0.0)
   - ObjectMapper (4.2.0)
   - Starscream (3.1.1)
+  - video_player (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - amplify_api (from `.symlinks/plugins/amplify_api/ios`)
@@ -59,6 +61,7 @@ DEPENDENCIES:
   - amplify_core (from `.symlinks/plugins/amplify_core/ios`)
   - amplify_flutter (from `.symlinks/plugins/amplify_flutter/ios`)
   - Flutter (from `Flutter`)
+  - video_player (from `.symlinks/plugins/video_player/ios`)
 
 SPEC REPOS:
   trunk:
@@ -85,6 +88,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/amplify_flutter/ios"
   Flutter:
     :path: Flutter
+  video_player:
+    :path: ".symlinks/plugins/video_player/ios"
 
 SPEC CHECKSUMS:
   Amplify: cf25ee17b0762b3bacd4d4d49891ddada6bee912
@@ -103,6 +108,7 @@ SPEC CHECKSUMS:
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
+  video_player: 9cc823b1d9da7e8427ee591e8438bfbcde500e6e
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 
