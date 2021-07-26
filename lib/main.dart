@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:amplify_flutter/amplify.dart';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
@@ -9,22 +7,8 @@ import 'package:video_player/video_player.dart';
 import 'amplifyconfiguration.dart';
 
 import 'components/HeatGauge.dart';
-import 'models/TemperatureStatus.dart';
 
-Future<TemperatureStatus> fetchStatus() async {
-  final response = await http.get(
-      Uri.parse(
-          "https://ydrgbyjuk9.execute-api.us-west-2.amazonaws.com/beta/3/status"),
-      headers: {'Content-type': 'application/json'});
-  print("Reached");
-  if (response.statusCode == 200) {
-    print(response.body);
-    return TemperatureStatus.fromJson(jsonDecode(response.body));
-  } else {
-    print(response.statusCode);
-    throw Exception('Failed to load status');
-  }
-}
+import 'models/TemperatureStatus.dart';
 
 void main() {
   runApp(MyApp());
@@ -78,27 +62,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    futureStatus = fetchStatus();
     _configureAmplify();
     _controller = VideoPlayerController.network(
         'https://b-117b36f5.kinesisvideo.us-west-2.amazonaws.com/hls/v1/getHLSMasterPlaylist.m3u8?SessionToken=CiDTwyGwfj5oTbvl_gG61Q3yIsznnpoIE3XTzSIlQXy-rhIQ0Lk6AxJpmYJEChooZG_-ohoZdmE5icjXkC6N1DekvRIs-vK-gBHTIB6xTyIgsSpH8U4GOVnCmZ2kSpRa1grV1S9a3k8ZzcqrxrrbR9w~')
       ..initialize().then((value) => setState(() {
             _controller.play();
           }));
-  }
-
-  void onTestApi() async {
-    try {
-      RestOptions options = RestOptions(
-          path: '/enclosure/3',
-          queryParameters: {'TableName': 'EnclosureStatus'});
-      RestOperation restOperation = Amplify.API.get(restOptions: options);
-      RestResponse response = await restOperation.response;
-      print('GET call succeeded');
-      print(String.fromCharCodes(response.data));
-    } on ApiException catch (e) {
-      print('GET call failed: $e');
-    }
   }
 
   void _configureAmplify() async {
