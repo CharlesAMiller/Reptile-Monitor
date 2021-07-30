@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:amplify_api/amplify_api.dart';
@@ -9,6 +11,8 @@ import 'amplifyconfiguration.dart';
 import 'components/HeatGauge.dart';
 
 import 'models/TemperatureStatus.dart';
+import 'api/GetStream.dart';
+import 'api/GetTemperatureStatus.dart';
 
 void main() {
   runApp(MyApp());
@@ -58,13 +62,21 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late Future<TemperatureStatus> futureStatus;
   late VideoPlayerController _controller;
+  final ValueNotifier<String> _streamUrl = ValueNotifier<String>("NULL");
 
   @override
   void initState() {
     super.initState();
     _configureAmplify();
-    _controller = VideoPlayerController.network(
-        'https://b-117b36f5.kinesisvideo.us-west-2.amazonaws.com/hls/v1/getHLSMasterPlaylist.m3u8?SessionToken=CiDTwyGwfj5oTbvl_gG61Q3yIsznnpoIE3XTzSIlQXy-rhIQ0Lk6AxJpmYJEChooZG_-ohoZdmE5icjXkC6N1DekvRIs-vK-gBHTIB6xTyIgsSpH8U4GOVnCmZ2kSpRa1grV1S9a3k8ZzcqrxrrbR9w~')
+    new Timer.periodic(Duration(seconds: 5), (Timer t) {
+      if (_streamUrl.value == "NULL") {
+        getVideoStream().then((value) => _streamUrl.value = value);
+      } else {
+        print("Cancelling timer");
+        t.cancel();
+      }
+    });
+    _controller = VideoPlayerController.network(_streamUrl.value)
       ..initialize().then((value) => setState(() {
             _controller.play();
           }));
@@ -100,11 +112,24 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
               child: Column(children: [
         Center(
-            child: _controller.value.isInitialized
-                ? AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller))
-                : Container()),
+            child: ValueListenableBuilder<String>(
+                valueListenable: _streamUrl,
+                builder: (BuildContext context, String value, Widget? child) {
+                  print("Connection State: ${value}");
+                  _controller = VideoPlayerController.network(value)
+                    ..initialize().then((value) => () {
+                          setState() {
+                            print("Reached");
+                            _controller.play();
+                          }
+                        });
+
+                  return _controller.value.isInitialized
+                      ? AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller))
+                      : Container();
+                })),
         FittedBox(
           fit: BoxFit.fitWidth,
           // in the middle of the parent.
@@ -137,6 +162,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(100)))
           ]),
+        ),
+        TextButton(
+          onPressed: () {
+            getTemperatureStatus().then((value) => print(value));
+          },
+          child: Text("TEST"),
         )
       ])),
     );
