@@ -10,7 +10,7 @@ Future<String> getVideoStream() async {
 
     RestResponse response = await restOperation.response;
     print(String.fromCharCodes(response.data));
-    return String.fromCharCodes(response.data);
+    return String.fromCharCodes(response.data).replaceAll('"', '');
   } on ApiException catch (e) {
     print('GET call failed: $e');
     throw Exception("Error");
