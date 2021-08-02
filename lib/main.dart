@@ -109,7 +109,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Will periodically retrieve the current status of the enclosure.
     new Timer.periodic(Duration(minutes: 1), (Timer t) {
-      _enclosureStatus = getEnclosureStatus();
+      setState(() {
+        _enclosureStatus = getEnclosureStatus();
+        isEnclosureStatusLoaded = true;
+      });
     });
   }
 
@@ -162,42 +165,36 @@ class _MyHomePageState extends State<MyHomePage> {
             child: isEnclosureStatusLoaded
                 ? FutureBuilder(
                     future: _enclosureStatus,
-                    builder: (context, snapshot) {
+                    builder:
+                        (context, AsyncSnapshot<EnclosureStatus> snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
-                        return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Card(
-                                  margin: EdgeInsets.all(10),
-                                  child: Column(children: [
-                                    HeatGauge(),
-                                    Container(
-                                      padding: EdgeInsets.all(20),
-                                      child: Text(
-                                        "Temperature (F)",
-                                        style: TextStyle(
-                                            fontSize: 24.0,
-                                            color: Colors.green),
-                                      ),
-                                    )
-                                  ]),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(100))),
-                              Card(
-                                  margin: EdgeInsets.all(10),
-                                  child: Column(children: [
-                                    HeatGauge(),
-                                    Container(
-                                        padding: EdgeInsets.all(20),
-                                        child: Text("Humidity",
+                        print("Connection done!");
+                        if (snapshot.data != null) {
+                          var status = snapshot.data;
+                          print("Data was fine!");
+                          return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                for (var sensor in status!.sensors)
+                                  Card(
+                                      margin: EdgeInsets.all(10),
+                                      child: Column(children: [
+                                        HeatGauge(),
+                                        Container(
+                                          padding: EdgeInsets.all(20),
+                                          child: Text(
+                                            "${sensor.type}",
                                             style: TextStyle(
                                                 fontSize: 24.0,
-                                                color: Colors.green)))
-                                  ]),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(100)))
-                            ]);
+                                                color: Colors.green),
+                                          ),
+                                        )
+                                      ]),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(100))),
+                              ]);
+                        }
                       }
                       return _getDefaultSensorLayout();
                     })
