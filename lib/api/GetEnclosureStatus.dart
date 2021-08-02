@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify.dart';
 
-Future<Map<String, dynamic>> getEnclosureStatus() async {
+import '../models/EnclosureStatus.dart';
+
+Future<EnclosureStatus> getEnclosureStatus() async {
   try {
     RestOptions options =
         RestOptions(path: '/enclosure/3/status', queryParameters: {'id': '3'});
@@ -14,7 +16,7 @@ Future<Map<String, dynamic>> getEnclosureStatus() async {
     print(String.fromCharCodes(response.data));
     Map<String, dynamic> responseAsJson =
         jsonDecode(String.fromCharCodes(response.data));
-    return responseAsJson;
+    return EnclosureStatus.fromJson(responseAsJson);
   } on ApiException catch (e) {
     print('GET call failed: $e');
     throw Exception("Error");
