@@ -6,10 +6,15 @@ import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:video_player/video_player.dart';
 
+import 'models/EnclosureInfo.dart';
+import 'models/EnclosureStatus.dart';
+
 import 'amplifyconfiguration.dart';
 
 import 'components/HeatGauge.dart';
 
+import 'api/GetEnclosureInfo.dart';
+import 'api/GetEnclosureStatus.dart';
 import 'api/GetStream.dart';
 
 void main() {
@@ -43,6 +48,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late Future<String> streamUrl;
   bool isStreamLoaded = false;
   late VideoPlayerController _controller;
+  late Future<EnclosureInfo> _enclosureInfo;
+  late Future<EnclosureStatus> _enclosureStatus;
   late Future<void> _initializeVideoPlayer;
 
   @override
@@ -53,7 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // Allow for Amplify configuration to finish.
     new Timer.periodic(Duration(seconds: 1), (Timer t) {
       if (Amplify.isConfigured) {
-        print("Amplify is configured!");
         getVideoStream().then((value) {
           print("Video Stream api callback $value");
           setState(() {
@@ -63,10 +69,17 @@ class _MyHomePageState extends State<MyHomePage> {
             isStreamLoaded = true;
           });
         });
+
+        _enclosureInfo = getEnclosureInfo();
         t.cancel();
       } else {
         print("Not yet configured!");
       }
+    });
+
+    // Will periodically retrieve the current status of the enclosure.
+    new Timer.periodic(Duration(minutes: 1), (Timer t) {
+      _enclosureStatus = getEnclosureStatus();
     });
   }
 
