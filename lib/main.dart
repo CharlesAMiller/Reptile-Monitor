@@ -10,9 +10,7 @@ import 'amplifyconfiguration.dart';
 
 import 'components/HeatGauge.dart';
 
-import 'models/TemperatureStatus.dart';
 import 'api/GetStream.dart';
-import 'api/GetTemperatureStatus.dart';
 
 void main() {
   runApp(MyApp());
@@ -60,26 +58,34 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late Future<TemperatureStatus> futureStatus;
+  late Future<String> streamUrl;
+  bool isStreamLoaded = false;
   late VideoPlayerController _controller;
-  final ValueNotifier<String> _streamUrl = ValueNotifier<String>("NULL");
+  late Future<void> _initializeVideoPlayer;
 
   @override
   void initState() {
     super.initState();
     _configureAmplify();
-    new Timer.periodic(Duration(seconds: 5), (Timer t) {
-      if (_streamUrl.value == "NULL") {
-        getVideoStream().then((value) => _streamUrl.value = value);
-      } else {
-        print("Cancelling timer");
+
+    // Allow for Amplify configuration to finish.
+    new Timer.periodic(Duration(seconds: 1), (Timer t) {
+      if (Amplify.isConfigured) {
+        print("Amplify is configured!");
+        getVideoStream().then((value) {
+          print("Video Stream api callback $value");
+          setState(() {
+            _controller = VideoPlayerController.network(value);
+            _initializeVideoPlayer = _controller.initialize();
+            _controller.play();
+            isStreamLoaded = true;
+          });
+        });
         t.cancel();
+      } else {
+        print("Not yet configured!");
       }
     });
-    _controller = VideoPlayerController.network(_streamUrl.value)
-      ..initialize().then((value) => setState(() {
-            _controller.play();
-          }));
   }
 
   void _configureAmplify() async {
@@ -112,24 +118,27 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
               child: Column(children: [
         Center(
-            child: ValueListenableBuilder<String>(
-                valueListenable: _streamUrl,
-                builder: (BuildContext context, String value, Widget? child) {
-                  print("Connection State: ${value}");
-                  _controller = VideoPlayerController.network(value)
-                    ..initialize().then((value) => () {
-                          setState() {
-                            print("Reached");
-                            _controller.play();
-                          }
-                        });
-
-                  return _controller.value.isInitialized
-                      ? AspectRatio(
+            child: isStreamLoaded
+                ? FutureBuilder(
+                    future: _initializeVideoPlayer,
+                    builder:
+                        (BuildContext context, AsyncSnapshot<void> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return AspectRatio(
                           aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller))
-                      : Container();
-                })),
+                          child: VideoPlayer(_controller),
+                        );
+                      } else {
+                        return CircularProgressIndicator();
+                      }
+                    })
+                : Container(
+                    height: 200.0,
+                    width: 400.0,
+                    decoration: BoxDecoration(color: Colors.grey),
+                    child: Center(
+                      child: Text("Video stream is currently unavailable."),
+                    ))),
         FittedBox(
           fit: BoxFit.fitWidth,
           // in the middle of the parent.
@@ -163,12 +172,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     borderRadius: BorderRadius.circular(100)))
           ]),
         ),
-        TextButton(
-          onPressed: () {
-            getTemperatureStatus().then((value) => print(value));
-          },
-          child: Text("TEST"),
-        )
       ])),
     );
   }
