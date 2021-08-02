@@ -35,6 +35,35 @@ class MyApp extends StatelessWidget {
   }
 }
 
+Widget _getDefaultSensorLayout() {
+  return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+    Card(
+        margin: EdgeInsets.all(10),
+        child: Column(children: [
+          HeatGauge(),
+          Container(
+            padding: EdgeInsets.all(20),
+            child: Text(
+              "Temperature (F)",
+              style: TextStyle(fontSize: 24.0, color: Colors.green),
+            ),
+          )
+        ]),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(100))),
+    Card(
+        margin: EdgeInsets.all(10),
+        child: Column(children: [
+          HeatGauge(),
+          Container(
+              padding: EdgeInsets.all(20),
+              child: Text("Humidity",
+                  style: TextStyle(fontSize: 24.0, color: Colors.green)))
+        ]),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)))
+  ]);
+}
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
 
@@ -47,6 +76,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late Future<String> streamUrl;
   bool isStreamLoaded = false;
+  bool isEnclosureStatusLoaded = false;
   late VideoPlayerController _controller;
   late Future<EnclosureInfo> _enclosureInfo;
   late Future<EnclosureStatus> _enclosureStatus;
@@ -127,38 +157,51 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Text("Video stream is currently unavailable."),
                     ))),
         FittedBox(
-          fit: BoxFit.fitWidth,
-          // in the middle of the parent.
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Card(
-                margin: EdgeInsets.all(10),
-                child: Column(children: [
-                  HeatGauge(),
-                  Container(
-                    padding: EdgeInsets.all(20),
-                    child: Text(
-                      "Temperature (F)",
-                      style: TextStyle(fontSize: 24.0, color: Colors.green),
-                    ),
-                  )
-                ]),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(100))),
-            Card(
-                margin: EdgeInsets.all(10),
-                child: Column(children: [
-                  HeatGauge(),
-                  Container(
-                      padding: EdgeInsets.all(20),
-                      child: Text("Humidity",
-                          style:
-                              TextStyle(fontSize: 24.0, color: Colors.green)))
-                ]),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(100)))
-          ]),
-        ),
+            fit: BoxFit.fitWidth,
+            // in the middle of the parent.
+            child: isEnclosureStatusLoaded
+                ? FutureBuilder(
+                    future: _enclosureStatus,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Card(
+                                  margin: EdgeInsets.all(10),
+                                  child: Column(children: [
+                                    HeatGauge(),
+                                    Container(
+                                      padding: EdgeInsets.all(20),
+                                      child: Text(
+                                        "Temperature (F)",
+                                        style: TextStyle(
+                                            fontSize: 24.0,
+                                            color: Colors.green),
+                                      ),
+                                    )
+                                  ]),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(100))),
+                              Card(
+                                  margin: EdgeInsets.all(10),
+                                  child: Column(children: [
+                                    HeatGauge(),
+                                    Container(
+                                        padding: EdgeInsets.all(20),
+                                        child: Text("Humidity",
+                                            style: TextStyle(
+                                                fontSize: 24.0,
+                                                color: Colors.green)))
+                                  ]),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(100)))
+                            ]);
+                      }
+                      return _getDefaultSensorLayout();
+                    })
+                : _getDefaultSensorLayout()),
       ])),
     );
   }
