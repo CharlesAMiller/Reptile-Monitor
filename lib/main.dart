@@ -8,10 +8,12 @@ import 'package:video_player/video_player.dart';
 
 import 'models/EnclosureInfo.dart';
 import 'models/EnclosureStatus.dart';
+import 'models/SensorValue.dart';
+import 'models/SensorLimit.dart';
 
 import 'amplifyconfiguration.dart';
 
-import 'components/HeatGauge.dart';
+import 'components/SensorGauage.dart';
 
 import 'api/GetEnclosureInfo.dart';
 import 'api/GetEnclosureStatus.dart';
@@ -40,7 +42,10 @@ Widget _getDefaultSensorLayout() {
     Card(
         margin: EdgeInsets.all(10),
         child: Column(children: [
-          HeatGauge(),
+          SensorGauge(
+              sensorValue: SensorValue(value: 65.0, type: "temp", sensor_id: 0),
+              sensorLimit:
+                  SensorLimit(min: 75, max: 95, type: "temp", sensor_id: 0)),
           Container(
             padding: EdgeInsets.all(20),
             child: Text(
@@ -54,7 +59,10 @@ Widget _getDefaultSensorLayout() {
     Card(
         margin: EdgeInsets.all(10),
         child: Column(children: [
-          HeatGauge(),
+          SensorGauge(
+              sensorValue: SensorValue(value: 65.0, type: "temp", sensor_id: 0),
+              sensorLimit:
+                  SensorLimit(min: 75, max: 95, type: "temp", sensor_id: 0)),
           Container(
               padding: EdgeInsets.all(20),
               child: Text("Humidity",
@@ -78,7 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isStreamLoaded = false;
   bool isEnclosureStatusLoaded = false;
   late VideoPlayerController _controller;
-  late Future<EnclosureInfo> _enclosureInfo;
+  EnclosureInfo _enclosureInfo =
+      EnclosureInfo(id: "-1", sensorLimits: <SensorLimit>[]);
   late Future<EnclosureStatus> _enclosureStatus;
   late Future<void> _initializeVideoPlayer;
 
@@ -100,7 +109,9 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         });
 
-        _enclosureInfo = getEnclosureInfo();
+        _enclosureStatus = getEnclosureStatus();
+        getEnclosureInfo().then((value) => _enclosureInfo = value);
+
         t.cancel();
       } else {
         print("Not yet configured!");
@@ -149,7 +160,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: VideoPlayer(_controller),
                         );
                       } else {
-                        return CircularProgressIndicator();
+                        return Container(
+                            height: 200.0,
+                            width: 400.0,
+                            decoration: BoxDecoration(color: Colors.grey),
+                            child: Center(child: CircularProgressIndicator()));
                       }
                     })
                 : Container(
@@ -171,29 +186,42 @@ class _MyHomePageState extends State<MyHomePage> {
                         print("Connection done!");
                         if (snapshot.data != null) {
                           var status = snapshot.data;
-                          print("Data was fine!");
-                          return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                for (var sensor in status!.sensors)
-                                  Card(
-                                      margin: EdgeInsets.all(10),
-                                      child: Column(children: [
-                                        HeatGauge(),
-                                        Container(
-                                          padding: EdgeInsets.all(20),
-                                          child: Text(
-                                            "${sensor.type}",
-                                            style: TextStyle(
-                                                fontSize: 24.0,
-                                                color: Colors.green),
-                                          ),
-                                        )
-                                      ]),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(100))),
-                              ]);
+                          return Column(children: [
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  for (var sensor in status!.sensors)
+                                    Card(
+                                        margin: EdgeInsets.all(10),
+                                        child: Column(children: [
+                                          SensorGauge(
+                                              sensorValue: sensor,
+                                              sensorLimit: _enclosureInfo
+                                                  .sensorLimits
+                                                  .where((element) =>
+                                                      element.sensor_id ==
+                                                      sensor.sensor_id)
+                                                  .first),
+                                          Container(
+                                            padding: EdgeInsets.all(20),
+                                            child: Text(
+                                              "${sensor.type.toUpperCase()}",
+                                              style: TextStyle(
+                                                  fontSize: 24.0,
+                                                  color: Colors.green),
+                                            ),
+                                          )
+                                        ]),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(100))),
+                                ]),
+                            Text(
+                                "Last updated: ${DateTime.fromMillisecondsSinceEpoch(int.parse(status.CreatedAt.substring(0, status.CreatedAt.indexOf('.'))) * 1000)}",
+                                style: TextStyle(
+                                    color: Colors.grey, fontSize: 14.0))
+                          ]);
                         }
                       }
                       return _getDefaultSensorLayout();
