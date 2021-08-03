@@ -16,7 +16,7 @@ Future<EnclosureInfo> getEnclosureInfo() async {
     print(String.fromCharCodes(response.data));
     Map<String, dynamic> responseAsJson =
         jsonDecode(String.fromCharCodes(response.data));
-    return EnclosureInfo.fromJson(responseAsJson);
+    return EnclosureInfo.fromJson(responseAsJson["Item"]);
   } on ApiException catch (e) {
     print('GET call failed: $e');
     throw Exception("Error");
