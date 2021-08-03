@@ -4,10 +4,10 @@
 class SensorLimit {
   final double min;
   final double max;
-  final String sensor_id;
+  final int sensor_id;
   final String type;
 
-  SensorLimit(
+  const SensorLimit(
       {required this.sensor_id,
       required this.type,
       required this.min,

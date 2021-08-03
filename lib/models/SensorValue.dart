@@ -6,7 +6,7 @@ class SensorValue {
   final String type;
   final int sensor_id;
 
-  SensorValue(
+  const SensorValue(
       {required this.value, required this.type, required this.sensor_id});
 
   factory SensorValue.fromJson(Map<String, dynamic> json) {

@@ -15,7 +15,8 @@ class EnclosureStatus {
       required this.sensors});
 
   factory EnclosureStatus.fromJson(Map<String, dynamic> json) {
-    List<Map<String, dynamic>> sensors = json["sensors"];
+    List<dynamic> sensors = json["data"]["sensors"];
+    print(sensors);
     List<SensorValue> sensorValues = <SensorValue>[];
     sensors.forEach((element) {
       sensorValues.add(SensorValue.fromJson(element));
