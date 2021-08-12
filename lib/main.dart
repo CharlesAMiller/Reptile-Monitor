@@ -155,9 +155,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     builder:
                         (BuildContext context, AsyncSnapshot<void> snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
-                        return AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller),
+                        return GestureDetector(
+                          child: AspectRatio(
+                            aspectRatio: _controller.value.aspectRatio,
+                            child: VideoPlayer(_controller),
+                          ),
+                          onTap: () {
+                            _controller.play();
+                          },
                         );
                       } else {
                         return Container(
