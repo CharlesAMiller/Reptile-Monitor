@@ -20,4 +20,11 @@ class SensorLimit {
         min: json['min'],
         max: json['max']);
   }
+
+  Map<String, dynamic> toJson() => {
+        'min': min + 0.01,
+        'max': max + 0.01,
+        'sensor_id': sensor_id,
+        'type': type
+      };
 }

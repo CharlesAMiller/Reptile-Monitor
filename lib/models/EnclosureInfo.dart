@@ -18,4 +18,12 @@ class EnclosureInfo {
     });
     return EnclosureInfo(id: json["id"], sensorLimits: sensorLimits);
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'sensors': {
+          "0": sensorLimits[0].toJson(),
+          "1": sensorLimits[1].toJson()
+        },
+      };
 }
