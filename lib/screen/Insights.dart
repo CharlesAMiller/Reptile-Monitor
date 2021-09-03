@@ -12,6 +12,7 @@ import 'package:reptile_monitor/models/EnclosureInfo.dart';
 import 'package:reptile_monitor/models/EnclosureStatus.dart';
 import 'package:reptile_monitor/models/SensorLimit.dart';
 import 'package:reptile_monitor/models/SensorValue.dart';
+import 'package:reptile_monitor/utils.dart';
 import 'package:video_player/video_player.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -23,7 +24,7 @@ class Insights extends StatefulWidget {
 }
 
 class _InsightsState extends State<Insights> {
-  bool isEnclosureStatusLoaded = false;
+  bool isEnclosureStatusesLoaded = false;
   EnclosureInfo _enclosureInfo =
       EnclosureInfo(id: "-1", sensorLimits: <SensorLimit>[]);
   late Future<List<EnclosureStatus>> _enclosureStatuses;
@@ -34,7 +35,8 @@ class _InsightsState extends State<Insights> {
     // Allow for Amplify configuration to finish.
     new Timer.periodic(Duration(seconds: 1), (Timer t) {
       if (Amplify.isConfigured) {
-        _enclosureStatuses = getEnclosureData();
+        _enclosureStatuses = getEnclosureData(DateTime.now().subtract(Duration(hours: 1)).millisecondsSinceEpoch.toString());
+        _enclosureStatuses.then((value) => setState((){isEnclosureStatusesLoaded = true;}));
         getEnclosureInfo().then((value) => _enclosureInfo = value);
 
         t.cancel();
@@ -46,9 +48,9 @@ class _InsightsState extends State<Insights> {
     // Will periodically retrieve the current status of the enclosure.
     new Timer.periodic(Duration(seconds: 30), (Timer t) {
       setState(() {
-        var halfMinuteAgo = DateTime.now().millisecondsSinceEpoch - (30 * 1000);
-        _enclosureStatuses = getEnclosureData(halfMinuteAgo.toString());
-        isEnclosureStatusLoaded = true;
+
+        _enclosureStatuses = getEnclosureData(DateTime.now().subtract(Duration(hours: 1)).millisecondsSinceEpoch.toString());
+        isEnclosureStatusesLoaded = true;
       });
     });
   }
@@ -56,7 +58,63 @@ class _InsightsState extends State<Insights> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text("Wut"),
+      child:            
+        isEnclosureStatusesLoaded ?
+        FutureBuilder(
+          future: _enclosureStatuses,
+          builder: (BuildContext context, AsyncSnapshot<List<EnclosureStatus>> snapshot) 
+          {  
+            if (snapshot.connectionState == ConnectionState.done)
+            {
+              var statuses = snapshot.data; 
+              if (statuses == null) return CircularProgressIndicator(); 
+
+              // TODO: Refactor to move these into modular components.
+              return Column(
+//                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                SfCartesianChart(
+                primaryXAxis: CategoryAxis(labelRotation: 90),
+                // Chart title
+                title: ChartTitle(text: 'Temperature'),
+                // Enable legend
+                legend: Legend(isVisible: true),
+                // Enable tooltip
+                tooltipBehavior: TooltipBehavior(enable: true),
+                series: <ChartSeries<EnclosureStatus, String>>[
+                  LineSeries<EnclosureStatus, String>(
+                      dataSource: statuses,
+                      xValueMapper: (EnclosureStatus status, _) => formatTimeHourMinute(timeFromTimeString(status.CreatedAt)),
+                      yValueMapper: (EnclosureStatus status, _) => status.sensors[0].value,
+                      name: 'Temperature',
+                      // Enable data label
+                      dataLabelSettings: DataLabelSettings(isVisible: true)),
+                ]), 
+                SfCartesianChart(
+                  primaryXAxis: CategoryAxis(labelRotation: 90),
+                  title: ChartTitle(text: 'Humidity'),
+                  // Enable legend
+                  legend: Legend(isVisible: true),
+                  // Enable tooltip
+                  tooltipBehavior: TooltipBehavior(enable: true),
+                  series: <ChartSeries<EnclosureStatus, String>>[
+                    LineSeries<EnclosureStatus, String>(
+                        dataSource: statuses,
+                        xValueMapper: (EnclosureStatus status, _) => formatTimeHourMinute(timeFromTimeString(status.CreatedAt)),
+                        yValueMapper: (EnclosureStatus status, _) => status.sensors[1].value,
+                        name: 'Humidity',
+                        // Enable data label
+                        dataLabelSettings: DataLabelSettings(isVisible: true )),
+                  ]), 
+              ]);
+            }
+            else 
+            {
+              return CircularProgressIndicator();
+            }
+          })
+          :
+          Text("The data is still loading")
     );
   }
 }

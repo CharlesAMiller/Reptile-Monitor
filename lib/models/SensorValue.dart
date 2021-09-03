@@ -11,6 +11,6 @@ class SensorValue {
 
   factory SensorValue.fromJson(Map<String, dynamic> json) {
     return SensorValue(
-        sensor_id: json['sensor_id'], type: json['type'], value: json['value']);
+        sensor_id: json['sensor_id'], type: json['type'], value: json['value'] + .0);
   }
 }

@@ -34,18 +34,18 @@ PODS:
     - AWSPluginsCore (= 1.11.0)
   - AppSyncRealTimeClient (1.5.0):
     - Starscream (~> 3.1.1)
-  - AWSAuthCore (2.24.3):
-    - AWSCore (= 2.24.3)
-  - AWSCognitoIdentityProvider (2.24.3):
-    - AWSCognitoIdentityProviderASF (= 2.24.3)
-    - AWSCore (= 2.24.3)
-  - AWSCognitoIdentityProviderASF (2.24.3)
-  - AWSCore (2.24.3)
-  - AWSMobileClient (2.24.3):
-    - AWSAuthCore (= 2.24.3)
-    - AWSCognitoIdentityProvider (= 2.24.3)
-    - AWSCognitoIdentityProviderASF (= 2.24.3)
-    - AWSCore (= 2.24.3)
+  - AWSAuthCore (2.24.5):
+    - AWSCore (= 2.24.5)
+  - AWSCognitoIdentityProvider (2.24.5):
+    - AWSCognitoIdentityProviderASF (= 2.24.5)
+    - AWSCore (= 2.24.5)
+  - AWSCognitoIdentityProviderASF (2.24.5)
+  - AWSCore (2.24.5)
+  - AWSMobileClient (2.24.5):
+    - AWSAuthCore (= 2.24.5)
+    - AWSCognitoIdentityProvider (= 2.24.5)
+    - AWSCognitoIdentityProviderASF (= 2.24.5)
+    - AWSCore (= 2.24.5)
   - AWSPluginsCore (1.11.0):
     - Amplify (= 1.11.0)
     - AWSCore (~> 2.24.0)
@@ -99,11 +99,11 @@ SPEC CHECKSUMS:
   amplify_flutter: 77665b732c1b8d04ed7f3eeb5a743f0b75838db1
   AmplifyPlugins: bb73475de41297a7244e8f3fdbf40cdad8115048
   AppSyncRealTimeClient: 2b4482b1770a3e5cf64f9714a6d198550017b5a2
-  AWSAuthCore: be26dde8246bb9b90a053a9392e9989149ac87d4
-  AWSCognitoIdentityProvider: 35a4d391d10add6293b2e1c9f3ccdb2237ddf8a1
-  AWSCognitoIdentityProviderASF: 48ccaa2ad4ecfba86549cb2023583aa073e2dd56
-  AWSCore: 759cbae2795ec192546187338bd21066c6b9ec0a
-  AWSMobileClient: a16718e842ae5cedc2b68a49f9bdd2e007a159c3
+  AWSAuthCore: 73f2e518d32f094b656fea905651bc3288ef05c0
+  AWSCognitoIdentityProvider: d32ff306a4d3aafcdc42ce40bd36e44d3f274201
+  AWSCognitoIdentityProviderASF: 1ccfe4092b617de54f203c1b728e7be6f49716c1
+  AWSCore: 2d4b06b24e2f882deec23567438195818b16a3f2
+  AWSMobileClient: 72e55c9c7162516feab354aa67f4d38dcecdcfc7
   AWSPluginsCore: 1670f03a8612d60bd84c541ffa34f538e4037052
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   ObjectMapper: 1eb41f610210777375fa806bf161dc39fb832b81
@@ -112,4 +112,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.0

@@ -73,6 +73,7 @@ class _DashboardState extends State<Dashboard> {
       if (Amplify.isConfigured) {
         getEnclosureInfo().then((value) => _enclosureInfo = value);
         _enclosureStatus = getEnclosureStatus();
+        _enclosureStatus.then((value) => setState((){isEnclosureStatusLoaded = true;}));
 
         getVideoStream().then((value) {
           print("Video Stream api callback $value");
